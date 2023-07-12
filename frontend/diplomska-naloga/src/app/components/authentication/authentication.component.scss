@@ -1,0 +1,33 @@
+.div-container{
+    height: 100vh;
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr 3fr 1fr;
+    .div-content{
+        grid-column: 2/3;
+        grid-row: 2/3;
+        border-radius: 10px;
+        box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+        // background-color: aliceblue;
+    }
+
+    .div-actions{
+        grid-column: 2/3;
+        grid-row: 3/4;
+        display: flex;
+        // flex: 0 0 50%;
+        text-align: center;
+        margin-top: 2em;
+        label{
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+            width: 50%;
+            height: 3em;
+            justify-content: center;
+        }
+
+        label:hover{
+            cursor: pointer;
+        }
+    }
+}

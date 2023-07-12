@@ -1,0 +1,17 @@
+<div class="div-container">
+    <h1>Sign up</h1>
+    <form [formGroup]="singUpForm" (ngSubmit)="onSubmit(singUpForm)">
+        <div class="div-container-name">
+            <input formControlName="firstname" placeholder="First name">
+            <input formControlName="lastname" placeholder="Last name">
+        </div>
+        <input formControlName="email" placeholder="Email">
+        <input formControlName="username" placeholder="Username">
+        <div formGroupName="passwords" class="div-passwords">
+            <input formControlName="password" placeholder="Password" type="password">
+            <input formControlName="confirmPassword" placeholder="Confirm password" type="password">
+        </div>
+        <button type="submit">Sign up</button>
+        <label class="errorMessage">{{errorMessage}}</label>
+    </form>
+</div>

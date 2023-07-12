@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Backend/Reservingham/Reservingham.Infrastructure/CodeTemplates/CustomCode/CodeGenerator.txt
+/Backend/Database/Compare
