@@ -16,6 +16,14 @@ namespace DiplomskaNaloga
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddCors(opt => {
+                opt.AddPolicy(name: "cors_dev", builder => {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,6 +51,7 @@ namespace DiplomskaNaloga
             });
 
             builder.Services.Configure<JwtSettings>(options => builder.Configuration.GetSection(JwtSettings.Position).Bind(options));
+            builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(MongoDbSettings.Section));
 
 
             builder.Services.AddDbContext<databaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -50,6 +59,9 @@ namespace DiplomskaNaloga
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IPasswordService, PasswordService>();
+
+            builder.Services.AddScoped<ISensorService, SensorService>();
+            builder.Services.AddScoped<ISensorDataService, SensorDataService>();
 
             builder.Services.AddAutoMapper(typeof(Program));
 
@@ -61,7 +73,7 @@ namespace DiplomskaNaloga
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseCors("cors_dev");
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

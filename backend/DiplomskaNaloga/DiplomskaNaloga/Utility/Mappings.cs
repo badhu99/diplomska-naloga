@@ -9,6 +9,9 @@ namespace DiplomskaNaloga.Utility
         {
             CreateMap<UserRequest, Data.Entity.User>();
             CreateMap<Data.Entity.User, UserDto>();
+
+            CreateMap<Data.Entity.SensorGroup, SensorGroupDto>();
+            CreateMap<SensorGroupData, Data.Entity.SensorGroup>();
         }
     }
 }

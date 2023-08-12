@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthenticationService } from 'src/app/services/auth/authentication.service';
+import { StateStorageService } from 'src/app/services/common/state-storage.service';
 
 @Component({
   selector: 'app-signin',
@@ -9,15 +12,25 @@ import { FormControl, FormGroup } from '@angular/forms';
 export class SigninComponent {
   singInForm!: FormGroup;
 
+  constructor(private fb: FormBuilder,
+    private authService: AuthenticationService,
+    private stateService: StateStorageService,
+    private router: Router){}
+
   ngOnInit() {
-    this.singInForm = new FormGroup({
-      username: new FormControl(''),
-      password: new FormControl(''),
-    });
+    this.singInForm = this.fb.group({
+      username : ['', [Validators.required, Validators.minLength(4)]],
+      password : ['', [Validators.required, Validators.minLength(4)]],
+    })
   }
 
   onSubmit(form: FormGroup) {
-    console.log('Valid?', form.valid); // true or false
-    console.log('value', form.value);
+    if(form.valid){
+      this.authService.SignIn(form.value["username"], form.value["password"]).subscribe(data => {
+        this.stateService.saveJwt(data.accessToken);
+        this.router.navigate(["sensors"]);
+      },err => console.error(err));      
+    }
+    
   }
 }

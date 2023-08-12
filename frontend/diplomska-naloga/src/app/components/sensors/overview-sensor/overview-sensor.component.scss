@@ -1,0 +1,22 @@
+.div-container{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    .div-data-group{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 25%;
+        flex-basis: 150px;
+        margin: 1% 0;
+        background-color: antiquewhite;
+        border-radius: 10px;
+
+
+        h1{
+            font-size: 20px;
+        }
+    }
+}

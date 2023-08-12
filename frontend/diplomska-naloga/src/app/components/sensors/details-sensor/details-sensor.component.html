@@ -1,0 +1,14 @@
+<p>Id is {{sensorsData}}</p>
+<ngx-charts-bar-vertical *ngIf="sensorsData.length > 0"
+    [view]="[1000,400]"
+    [results]="sensorsData"
+    [xAxisLabel]="'Products'"
+    [legendTitle]="'Product Sale Chart'"
+    [yAxisLabel]="'Sale'"
+    [legend]="true"
+    [showXAxisLabel]="true"
+    [showYAxisLabel]="true"
+    [xAxis]="true"
+    [yAxis]="true"
+    [gradient]="true">
+</ngx-charts-bar-vertical>

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DiplomskaNaloga.Controllers
 {
     [Route("api/[controller]/[action]"), ApiController, Authorize]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : BaseController
     {
         private readonly IAuthenticationService _authenticationService;
 
@@ -39,7 +39,7 @@ namespace DiplomskaNaloga.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
 
