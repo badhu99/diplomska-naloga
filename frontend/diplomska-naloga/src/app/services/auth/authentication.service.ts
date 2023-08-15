@@ -21,4 +21,21 @@ export class AuthenticationService {
 
     return this.http.post<AuthUserResponse>(url, body);
   }
+
+  SignUp(firstname:string, lastname:string, email:string,
+    username:string, password:string):Observable<AuthUserResponse>{
+
+
+      const url = `${this.endpoint}/SignUp`
+      const body = {
+        username,
+        password,
+        firstname,
+        lastname,
+        email
+      }
+  
+      return this.http.post<AuthUserResponse>(url, body);
+    }
+
 }

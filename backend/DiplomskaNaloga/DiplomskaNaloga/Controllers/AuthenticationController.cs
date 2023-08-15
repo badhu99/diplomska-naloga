@@ -1,4 +1,5 @@
-﻿using DiplomskaNaloga.Models;
+﻿using System.Net;
+using DiplomskaNaloga.Models;
 using DiplomskaNaloga.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,13 @@ namespace DiplomskaNaloga.Controllers
             _authenticationService = authenticationService;
         }
 
-        [HttpPost, AllowAnonymous]
+        [HttpPost, AllowAnonymous, ProducesResponseType(typeof(UserDto), 200)]
         public async Task<IActionResult> SignUp(UserRequest request)
         {
             try
             {
-                await _authenticationService.SignUp(request);
-                return Ok();
+                var result = await _authenticationService.SignUp(request);
+                return Ok(result);
             }
             catch (Exception e)
             {

@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 
 import { SensorsRoutingModule } from './sensors-routing.module';
 import { DetailsSensorComponent } from './details-sensor/details-sensor.component';
 import { OverviewSensorComponent } from './overview-sensor/overview-sensor.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -15,7 +16,11 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
   imports: [
     CommonModule,
     SensorsRoutingModule,
-    NgxChartsModule
+    NgxChartsModule,
+    ReactiveFormsModule
+  ],
+  providers:[
+    DatePipe
   ]
 })
 export class SensorsModule { }

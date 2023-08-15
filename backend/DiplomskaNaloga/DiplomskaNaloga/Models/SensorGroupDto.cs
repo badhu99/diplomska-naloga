@@ -12,6 +12,8 @@ namespace DiplomskaNaloga.Models
     public class SensorGroupData
     {
         public string Name { get; set; }
+        public string ColumnX { get; set; }
+        public string ColumnY { get; set; }
     }
 }
 

@@ -8,6 +8,8 @@ namespace Data.Entity
 		public string Name { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
+		public string? ColumnX { get; set; }
+		public string? ColumnY { get; set; }
 	}
 }
 

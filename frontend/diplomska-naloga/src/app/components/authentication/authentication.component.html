@@ -3,7 +3,7 @@
         <router-outlet></router-outlet>
     </div>
     <div class="div-actions">
-        <label (click)="navigateTo('signin')">Sing up</label>
-        <label (click)="navigateTo('signup')">Sing in</label>
+        <label class="left" (click)="navigateTo('signin')" [ngClass]="{'active':currentUrl === 'signin'}">Sign in</label>
+        <label class="right" (click)="navigateTo('signup')" [ngClass]="{'active':currentUrl === 'signup'}">Sign up</label>
     </div>
 </div>

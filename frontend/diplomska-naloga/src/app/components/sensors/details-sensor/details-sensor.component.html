@@ -1,14 +1,36 @@
-<p>Id is {{sensorsData}}</p>
-<ngx-charts-bar-vertical *ngIf="sensorsData.length > 0"
-    [view]="[1000,400]"
-    [results]="sensorsData"
-    [xAxisLabel]="'Products'"
-    [legendTitle]="'Product Sale Chart'"
-    [yAxisLabel]="'Sale'"
-    [legend]="true"
-    [showXAxisLabel]="true"
-    [showYAxisLabel]="true"
-    [xAxis]="true"
-    [yAxis]="true"
-    [gradient]="true">
-</ngx-charts-bar-vertical>
+<div class="div-container">
+    <div class="div-header">
+        <button class="btn" (click)="toggleShowModalAddData()">Add data</button>
+        <h1>{{sensorsData.name}}</h1>
+        <button class="btn">Logout</button>
+    </div>
+    <div class="div-content" *ngIf="containsData">
+
+        <ngx-charts-line-chart *ngIf="sensorsData.content.length > 0"
+        [view]="view"
+        [results]="sensorsData.content"
+        [xAxis]="showXAxis"
+        [yAxis]="showYAxis"
+        [showXAxisLabel]="showXAxisLabel"
+        [showYAxisLabel]="showYAxisLabel"
+        [xAxisLabel]="xAxisLabel"
+        [yAxisLabel]="yAxisLabel"
+        (select)="onSelect($event)">
+      </ngx-charts-line-chart>
+    </div>
+</div>
+
+<div class="modal-overlay" [style.visibility]="showModalAddData || containsData === false ? 'visible' : 'hidden'" *ngIf="sensorsData">
+    <div class="modal-content">
+        <form [formGroup]="formAddData" (ngSubmit)="onAddData(formAddData)">
+
+            <label class="close close-label" (click)="toggleShowModalAddData()">&times;</label>
+            <h1>Add data</h1>
+            <label class="label-placeholder">Add data for graph</label>
+            <textarea data-1p-ignore spellcheck="false" formControlName="data"></textarea>
+            <button type="submit" class="btn">Create</button>
+        </form>
+    </div>
+</div>
+
+

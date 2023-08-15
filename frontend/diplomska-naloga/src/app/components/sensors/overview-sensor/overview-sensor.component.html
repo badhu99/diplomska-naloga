@@ -1,6 +1,30 @@
 <div class="div-container">
-    <div class="div-data-group" *ngFor="let item of sensorGroups">
+    <div class="div-header">
+        <button class="btn create-new" (click)="toggleModalCreateNew()">Create new</button>
+        <h1>My groups</h1>
+        <button class="btn logout" (click)="logout()">Logout</button>
+    </div>
+    <div class="div-data-group" id="group-{{i}}" *ngFor="let item of sensorGroups; let i = index">
+        <label class="group-close" (click)="deleteSensorGroup(item)">&times;</label>
         <h1>{{item.name}}</h1>
-        <button (click)="openSensorGroup(item)">OPEN</button>
+        <button class="btn" (click)="openSensorGroup(item)">OPEN</button>
+    </div>
+</div>
+
+<div class="modal-overlay" [style.visibility]="showModal ? 'visible' : 'hidden'">
+    <div class="modal-content">
+        <form [formGroup]="newGroupForm" (ngSubmit)="onCreateNew(newGroupForm)">
+
+            <label class="close close-label" (click)="toggleModalCreateNew()">&times;</label>
+            <h1>Create new</h1>
+            <label class="new-group-name">X axis name:</label>
+            <input class="axis" type="text" formControlName="xAxis" autocomplete="off" data-1p-ignore><br>
+            <label class="new-group-name">Y axis name:</label>
+            <input class="axis" type="text" formControlName="yAxis" autocomplete="off" data-1p-ignore><br>
+            <label class="new-group-name">Name:</label>
+            <input class="name" type="text" formControlName="name" autocomplete="off" data-1p-ignore><br>
+
+            <button type="submit" class="btn">Create</button>
+        </form>
     </div>
 </div>

@@ -5,6 +5,10 @@ using DipslomskaNaloga.Utility.Enums;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
 using AutoMapper;
+using Data.Entity;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using DiplomskaNaloga.Settings;
 
 namespace DiplomskaNaloga.Services
 {
@@ -21,12 +25,23 @@ namespace DiplomskaNaloga.Services
         private readonly databaseContext _context;
         private readonly AutoMapper.IConfigurationProvider _config;
         private readonly IMapper _mapper;
+        private readonly IMongoCollection<SensorsDetails> _sensorCollection;
 
-        public SensorService(databaseContext databaseContext, AutoMapper.IConfigurationProvider config, IMapper mapper)
+
+        public SensorService(databaseContext databaseContext,
+            AutoMapper.IConfigurationProvider config,
+            IMapper mapper,
+            IOptions<MongoDbSettings> options)
         {
             _context = databaseContext;
             _config = config;
             _mapper = mapper;
+            var settings = options.Value;
+
+            var mongoClient = new MongoClient(settings.ConnectionString);
+            var mongoDb = mongoClient.GetDatabase(settings.DatabaseName);
+
+            _sensorCollection = mongoDb.GetCollection<SensorsDetails>(settings.CollectionName);
         }
 
         public async Task<Guid> AddNewSensorGroup(Guid userId, SensorGroupData data)
@@ -39,6 +54,8 @@ namespace DiplomskaNaloga.Services
             {
                 Name = data.Name,
                 UserId = userId,
+                ColumnX = data.ColumnX,
+                ColumnY = data.ColumnY,
             };
 
             await _context.SensorGroups.AddAsync(entity);
@@ -53,8 +70,13 @@ namespace DiplomskaNaloga.Services
 
             if (entity == null) throw new ArgumentNullException("Not found");
 
+
+            var filter = Builders<SensorsDetails>.Filter.Eq("SensorGroupId", id.ToString());
+            await _sensorCollection.DeleteManyAsync(filter);
+
             _context.SensorGroups.Remove(entity);
             await _context.SaveChangesAsync();
+
         }
 
         public async Task<Pagination<SensorGroupDto>> GetPagination(Guid userId, int pageNumber, int pageSize, bool orderDesc, EnumSensorGroup orderBy)

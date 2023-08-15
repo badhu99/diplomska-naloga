@@ -3,12 +3,13 @@ using Data;
 using Data.Entity;
 using DiplomskaNaloga.Models;
 using Microsoft.EntityFrameworkCore;
+using SharpCompress.Common;
 
 namespace DiplomskaNaloga.Services
 {
     public interface IAuthenticationService
     {
-        public Task SignUp(UserRequest request);
+        public Task<UserDto> SignUp(UserRequest request);
         public Task<UserDto> SignIn(UserLogin request);
     }
     public class AuthenticationService : IAuthenticationService
@@ -44,7 +45,7 @@ namespace DiplomskaNaloga.Services
             return userDto;
         }
 
-        public async Task SignUp(UserRequest request)
+        public async Task<UserDto> SignUp(UserRequest request)
         {
             var entityUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username || u.Email == request.Email);
             if (entityUser != null)
@@ -58,6 +59,17 @@ namespace DiplomskaNaloga.Services
 
             await _context.Users.AddAsync(entityUser);
             await _context.SaveChangesAsync();
+
+
+            _jwtService.CreateRefreshToken(entityUser);
+
+            await _context.SaveChangesAsync();
+
+            var userDto = _mapper.Map<UserDto>(entityUser);
+
+            userDto.AccessToken = _jwtService.CreateAccesToken(userDto);
+
+            return userDto;
         }
     }
 }

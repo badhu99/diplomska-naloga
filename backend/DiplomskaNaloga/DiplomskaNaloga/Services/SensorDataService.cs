@@ -13,7 +13,7 @@ namespace DiplomskaNaloga.Services
 {
     public interface ISensorDataService {
 		Task AddData(Guid sensorGroupId, Guid UserId, SensorDetailsData data);
-		Task<dynamic> GetData(Guid sensorGroupId,Guid userId, int pageNumber, int pageSize);
+		Task<SensorDetailsResponse> GetData(Guid sensorGroupId,Guid userId, int pageNumber, int pageSize);
 
     }
     public class SensorDataService : ISensorDataService
@@ -33,47 +33,68 @@ namespace DiplomskaNaloga.Services
             _context = context;
         }
 
-		public async Task<dynamic> GetData(Guid sensorGroupId, Guid userId, int pageNumber, int pageSize) {
+		public async Task<SensorDetailsResponse> GetData(Guid sensorGroupId, Guid userId, int pageNumber, int pageSize) {
 			var sensorGroup = await _context.SensorGroups.FirstOrDefaultAsync(sg => sg.Id == sensorGroupId && sg.UserId == userId);
 			if (sensorGroup == null) throw new UnauthorizedAccessException();
 
 			var c = _sensorCollection
 				.AsQueryable()
 				.Where(sg => sg.SensorGroupId == sensorGroupId.ToString())
-				.Select(sg => 
+				.Select(sg =>
 					sg.Body
-                ).ToList();
+				).ToList();
 
-			List<dynamic> list = new();
+			SensorDetailsResponse response = new()
+			{
+				Name = sensorGroup.Name,
+				Content = new(),
+				XAxis = sensorGroup.ColumnX ?? "",
+				YAxis = sensorGroup.ColumnY ?? "",
+			};
+
+			SensorDetailsContent responseContent = new() {
+				Name = sensorGroup.Name,
+				Series = new(),
+			};
             foreach (var b in c) {
-				var doc = BsonSerializer.Deserialize<dynamic>(b);
-				list.Add(doc);
+				var data =  new
+				{
+                    Name = b[sensorGroup.ColumnX].ToString(),
+                    Value = b[sensorGroup.ColumnY].ToString(),
+                };
+				responseContent.Series.Add(data);
 			}
 
-			return list;
+			response.Content.Add(responseContent);
+
+            return response;
         }
 
 
 		public async Task AddData(Guid sensorGroupId, Guid userId, SensorDetailsData data)
 		{
 			var sensorGroup = _context.SensorGroups.FirstOrDefault(sg => sg.Id == sensorGroupId);
+
 			if (sensorGroup == null) throw new ArgumentException("Group not found");
 
-			if (sensorGroup.UserId == userId) throw new UnauthorizedAccessException();
+			if (sensorGroup.UserId != userId) throw new UnauthorizedAccessException();
 
 			JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(data.Body.ToString());
 			List<JsonElement> listJsonElements = new();
 
 			if (jsonElement.ValueKind == JsonValueKind.Array)
 			{
-
 				var jsonArray = jsonElement.EnumerateArray();
                 var propertiesOfFirstElement = jsonArray.First().EnumerateObject().Select(p => p.Name).ToList();
 
                 foreach (JsonElement item in jsonArray)
                 {
-
                     var properties = item.EnumerateObject().Select(p => p.Name).ToList();
+					foreach(var p in properties) {
+						if(p != sensorGroup.ColumnX && p != sensorGroup.ColumnY) {
+							throw new ArgumentException($"Property {p} not named {sensorGroup.ColumnX} or {sensorGroup.ColumnY}");
+						}
+                    }
 
                     if (!properties.SequenceEqual(propertiesOfFirstElement))
                     {
@@ -93,7 +114,7 @@ namespace DiplomskaNaloga.Services
 				if(sensorGroupDetails != null) {
                     var dynamicObject = BsonSerializer.Deserialize<ExpandoObject>(sensorGroupDetails?.Body);
                     if (!IsJsonOfType(element, dynamicObject))
-                        throw new ArgumentException("Type for input not matching existing recors structure");
+                        throw new ArgumentException("Type for input not matching existing records structure");
                 }
 
 

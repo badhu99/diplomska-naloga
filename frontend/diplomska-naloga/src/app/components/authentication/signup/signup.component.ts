@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthenticationService } from 'src/app/services/auth/authentication.service';
+import { StateStorageService } from 'src/app/services/common/state-storage.service';
 
 @Component({
   selector: 'app-signup',
@@ -9,7 +12,10 @@ import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 export class SignupComponent {
   errorMessage ="";
   singUpForm!: FormGroup;
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: FormBuilder,
+    private authService:AuthenticationService,
+    private stateService:StateStorageService,
+    private router:Router) {}
   ngOnInit() {
     this.singUpForm =this.formBuilder.group({
       firstname: (['', Validators.required]),
@@ -25,7 +31,7 @@ export class SignupComponent {
 
   onSubmit(form: FormGroup) {
     if(form.valid){
-      alert("Valid");
+      this.signUp(form);
       this.errorMessage = "";
     }
     else{
@@ -46,6 +52,19 @@ export class SignupComponent {
     } else {
       form.get('confirmPassword')?.setErrors(null);
     }
+  }
+
+  private signUp(form:FormGroup){
+    this.authService.SignUp(
+      form.value.firstname,
+      form.value.lastname,
+      form.value.email,
+      form.value.username,
+      form.value.passwords.password,
+    ).subscribe(data => {
+      this.stateService.saveJwt(data.accessToken);
+      this.router.navigate(["sensors"]);
+    })
   }
 
 }
