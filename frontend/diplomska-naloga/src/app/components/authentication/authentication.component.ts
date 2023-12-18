@@ -25,6 +25,10 @@ export class AuthenticationComponent {
     this.router.navigate(["auth", path]);
   }
 
+  navigateToData(){
+    this.router.navigate(["..", "sensors"]);
+  }
+
   private checkUrlEndPath(url:string){
     if(url.endsWith('signup')){
       this.currentUrl = 'signup'

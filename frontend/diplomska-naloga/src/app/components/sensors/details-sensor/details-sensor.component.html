@@ -1,8 +1,10 @@
 <div class="div-container">
     <div class="div-header">
-        <button class="btn" (click)="toggleShowModalAddData()">Add data</button>
+        <button class="btn" (click)="toggleShowModalAddData()" *ngIf="sensorsData.userId == userId || isUserAdmin">Add data</button>
+        <p *ngIf="!userLoggedIn"></p>
         <h1>{{sensorsData.name}}</h1>
-        <button class="btn">Logout</button>
+        <button class="btn" *ngIf="userLoggedIn" (click)="logout()" >Logout</button>
+        <button class="btn" *ngIf="!userLoggedIn" (click)="navigateToLogin()" >Login</button>
     </div>
     <div class="div-content" *ngIf="containsData">
 
@@ -20,7 +22,7 @@
     </div>
 </div>
 
-<div class="modal-overlay" [style.visibility]="showModalAddData || containsData === false ? 'visible' : 'hidden'" *ngIf="sensorsData">
+<div class="modal-overlay" [style.visibility]="showModalAddData || (userLoggedIn && containsData == false)? 'visible' : 'hidden'" *ngIf="sensorsData">
     <div class="modal-content">
         <form [formGroup]="formAddData" (ngSubmit)="onAddData(formAddData)">
 

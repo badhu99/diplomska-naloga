@@ -11,6 +11,10 @@ import { StateStorageService } from 'src/app/services/common/state-storage.servi
   styleUrls: ['./overview-sensor.component.scss'],
 })
 export class OverviewSensorComponent implements OnInit {
+
+  userLoggedIn = false;
+  isUserAdmin = false;
+  userId:string | undefined = undefined;
   pageNumber = 1;
   pageSize = 12;
   orderDesc = false;
@@ -25,7 +29,7 @@ export class OverviewSensorComponent implements OnInit {
     private serviceSensorGroup: SensorGroupService,
     private router: Router,
     private fb: FormBuilder,
-    private serviceStateStorage : StateStorageService
+    protected serviceStateStorage : StateStorageService
   ) {}
   ngOnInit(): void {
     this.getPaginatedSensorGroup();
@@ -34,6 +38,20 @@ export class OverviewSensorComponent implements OnInit {
       xAxis: ['', Validators.required],
       yAxis: ['', Validators.required],
     });
+
+    this.serviceStateStorage.checkIfJwtSaved()
+
+    this.serviceStateStorage.getAuthData.subscribe((value) => {
+      this.userLoggedIn = value
+    })
+
+    this.serviceStateStorage.isUserAdmin.subscribe(value => {
+      this.isUserAdmin = value
+    })
+
+    this.serviceStateStorage.getUserId.subscribe(value => {
+      this.userId = value
+    })
   }
 
   onCreateNew(fb: FormGroup) {
@@ -67,6 +85,14 @@ export class OverviewSensorComponent implements OnInit {
 
   logout() {
     this.serviceStateStorage.removeJwt();
+  }
+
+  navigateToLogin(){
+    this.router.navigate(['../auth'])
+  }
+
+  checkUserPermission(item: SensorGroup){
+    return item.userId === this.userId || this.isUserAdmin
   }
 
   private getPaginatedSensorGroup() {

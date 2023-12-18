@@ -26,6 +26,7 @@ namespace DiplomskaNaloga.Models
         public string Name { get; set; }
         public string XAxis { get; set; }
         public string YAxis { get; set; }
+        public Guid UserId { get; set; }
 
     }
 }

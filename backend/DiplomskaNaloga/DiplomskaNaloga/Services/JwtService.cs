@@ -11,8 +11,8 @@ namespace DiplomskaNaloga.Services
 {
     public interface IJwtService
     {
-        public string CreateAccesToken(UserDto user);
-        public void CreateRefreshToken(Data.Entity.User user);
+        public string CreateAccesToken(Entity.User user);
+        public void CreateRefreshToken(Entity.User user);
         public ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token);
     }
     public class JwtService : IJwtService
@@ -24,7 +24,7 @@ namespace DiplomskaNaloga.Services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string CreateAccesToken(UserDto user)
+        public string CreateAccesToken(Entity.User user)
         {
             var authClaims = SetClaims(user);
             var token = CreateToken(authClaims);
@@ -32,7 +32,7 @@ namespace DiplomskaNaloga.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public void CreateRefreshToken(Data.Entity.User user)
+        public void CreateRefreshToken(Entity.User user)
         {
             var refreshToken = GenerateRefreshToken();
 
@@ -61,7 +61,7 @@ namespace DiplomskaNaloga.Services
 
         #region Private
 
-        private List<Claim> SetClaims(UserDto user)
+        private List<Claim> SetClaims(Entity.User user)
         {
             List<Claim> claims = new List<Claim>()
             {
@@ -69,6 +69,7 @@ namespace DiplomskaNaloga.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Surname, user.Lastname),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
             };
 
             return claims;

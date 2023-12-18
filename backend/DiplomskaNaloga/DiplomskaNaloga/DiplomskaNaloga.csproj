@@ -15,16 +15,15 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
     <PackageReference Include="MongoDb.Driver" Version="2.20.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Data\Data.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.14" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Utility\Enums\" />
+    <None Remove="Entity\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utility\Enums\" />
+    <Folder Include="Entity\" />
   </ItemGroup>
 </Project>

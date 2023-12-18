@@ -17,11 +17,12 @@ namespace DiplomskaNaloga.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetSensors(int pageNumber = 1, int pageSize = 12, bool orderDesc = false, EnumSensorGroup orderBy = EnumSensorGroup.Name)
         {
             try
             {
-                var result = await _sensorService.GetPagination(UserId!.Value, pageNumber, pageSize, orderDesc, orderBy);
+                var result = await _sensorService.GetPagination(pageNumber, pageSize, orderDesc, orderBy);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -35,6 +36,7 @@ namespace DiplomskaNaloga.Controllers
         {
             try
             {
+                var c = Role;
                 var result = await _sensorService.AddNewSensorGroup(UserId!.Value, data);
                 return Created(result.ToString(), result);
             }
@@ -49,7 +51,7 @@ namespace DiplomskaNaloga.Controllers
         {
             try
             {
-                await _sensorService.DeleteSensorGroup(UserId!.Value, id);
+                await _sensorService.DeleteSensorGroup(UserId!.Value, id, Role);
                 return NoContent();
             }
             catch (Exception _)
@@ -63,7 +65,7 @@ namespace DiplomskaNaloga.Controllers
         {
             try
             {
-                await _sensorService.UpdateSensorGroup(UserId!.Value, id, data);
+                await _sensorService.UpdateSensorGroup(UserId!.Value, id, data, Role);
                 return NoContent();
             }
             catch (Exception _)

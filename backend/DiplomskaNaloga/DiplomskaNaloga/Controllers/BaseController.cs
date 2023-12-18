@@ -18,8 +18,12 @@ namespace DiplomskaNaloga.Controllers
             }
         }
 
-        public BaseController()
+        protected string Role
         {
+            get
+            {
+                return User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role).Value;
+            }
         }
     }
 }

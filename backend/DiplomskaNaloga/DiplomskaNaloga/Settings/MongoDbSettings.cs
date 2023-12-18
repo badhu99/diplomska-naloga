@@ -8,7 +8,9 @@ namespace DiplomskaNaloga.Settings
 
         public string DatabaseName { get; set; } = null!;
 
-        public string CollectionName { get; set; } = null!;
+        public string CollectionDetailsName { get; set; } = null!;
+        public string CollectionUsersName { get; set; } = null!;
+        public string CollectionGroupName { get; set; } = null!;
     }
 }
 

@@ -1,39 +1,39 @@
 ﻿using System;
-using Data;
 using DiplomskaNaloga.Models;
 using DipslomskaNaloga.Utility.Enums;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
 using AutoMapper;
-using Data.Entity;
+using Entity;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using DiplomskaNaloga.Settings;
+using System.Data;
 
 namespace DiplomskaNaloga.Services
 {
     public interface ISensorService
     {
-        Task<Pagination<SensorGroupDto>> GetPagination(Guid userId, int pageNumber, int pageSize, bool OrderDesc, EnumSensorGroup orderBy);
+        Task<Pagination<SensorGroupDto>> GetPagination(int pageNumber, int pageSize, bool OrderDesc, EnumSensorGroup orderBy);
         Task<Guid> AddNewSensorGroup(Guid userId, SensorGroupData data);
-        Task DeleteSensorGroup(Guid userId, Guid id);
-        Task UpdateSensorGroup(Guid userId, Guid id, SensorGroupData data);
+        Task DeleteSensorGroup(Guid userId, Guid id, string role);
+        Task UpdateSensorGroup(Guid userId, Guid id, SensorGroupData data, string role);
     }
 
     public class SensorService : ISensorService
     {
-        private readonly databaseContext _context;
         private readonly AutoMapper.IConfigurationProvider _config;
         private readonly IMapper _mapper;
-        private readonly IMongoCollection<SensorsDetails> _sensorCollection;
+        private readonly IMongoCollection<SensorsDetails> _sensorDetailsCollection;
+        private readonly IMongoCollection<SensorGroup> _sensorGroupCollection;
 
 
-        public SensorService(databaseContext databaseContext,
+        public SensorService(
             AutoMapper.IConfigurationProvider config,
             IMapper mapper,
             IOptions<MongoDbSettings> options)
         {
-            _context = databaseContext;
+            
             _config = config;
             _mapper = mapper;
             var settings = options.Value;
@@ -41,50 +41,44 @@ namespace DiplomskaNaloga.Services
             var mongoClient = new MongoClient(settings.ConnectionString);
             var mongoDb = mongoClient.GetDatabase(settings.DatabaseName);
 
-            _sensorCollection = mongoDb.GetCollection<SensorsDetails>(settings.CollectionName);
+            _sensorDetailsCollection = mongoDb.GetCollection<SensorsDetails>(settings.CollectionDetailsName);
+            _sensorGroupCollection = mongoDb.GetCollection<SensorGroup>(settings.CollectionGroupName);
         }
 
         public async Task<Guid> AddNewSensorGroup(Guid userId, SensorGroupData data)
         {
-            var entity = await _context.SensorGroups.FirstOrDefaultAsync(sg => sg.Name == data.Name);
+            var entity = await _sensorGroupCollection.Find(sgc => sgc.Name == data.Name).FirstOrDefaultAsync();
 
             if (entity != null) throw new ArgumentOutOfRangeException("Already exists");
 
             entity = new()
             {
+                Id = Guid.NewGuid(),
                 Name = data.Name,
                 UserId = userId,
                 ColumnX = data.ColumnX,
                 ColumnY = data.ColumnY,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
-            await _context.SensorGroups.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
+            await _sensorGroupCollection.InsertOneAsync(entity);
             return entity.Id;
         }
 
-        public async Task DeleteSensorGroup(Guid userId, Guid id)
+        public async Task DeleteSensorGroup(Guid userId, Guid id, string role = "")
         {
-            var entity = await _context.SensorGroups.FirstOrDefaultAsync(sg => sg.UserId == userId && sg.Id == id);
-
+            var entity = await _sensorGroupCollection.Find(sg => sg.Id == id).FirstOrDefaultAsync();
             if (entity == null) throw new ArgumentNullException("Not found");
 
+            if (entity.UserId != userId && role != "Admin") throw new UnauthorizedAccessException();
 
-            var filter = Builders<SensorsDetails>.Filter.Eq("SensorGroupId", id.ToString());
-            await _sensorCollection.DeleteManyAsync(filter);
-
-            _context.SensorGroups.Remove(entity);
-            await _context.SaveChangesAsync();
-
+            await _sensorGroupCollection.DeleteOneAsync(sga => sga.Id == id);
         }
 
-        public async Task<Pagination<SensorGroupDto>> GetPagination(Guid userId, int pageNumber, int pageSize, bool orderDesc, EnumSensorGroup orderBy)
+        public async Task<Pagination<SensorGroupDto>> GetPagination(int pageNumber, int pageSize, bool orderDesc, EnumSensorGroup orderBy)
         {
-            var entities = _context.SensorGroups
-                .AsNoTrackingWithIdentityResolution()
-                .Where(sg => sg.UserId == userId);
-
+            var entities = _sensorGroupCollection.Find(_ => true).ToEnumerable();
 
             switch (orderBy)
             {
@@ -120,7 +114,12 @@ namespace DiplomskaNaloga.Services
                     break;
             }
 
-
+            List<SensorGroupDto> returnValues = new();
+            foreach (var entity in entities.Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize))
+            {
+                returnValues.Add(_mapper.Map<SensorGroupDto>(entity));
+            }
 
 
             return new Pagination<SensorGroupDto>
@@ -128,24 +127,24 @@ namespace DiplomskaNaloga.Services
                 Count = entities.Count(),
                 Page = pageNumber,
                 Size = pageSize,
-                Items = await entities
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ProjectTo<SensorGroupDto>(_config)
-                    .ToListAsync(),
+                Items = returnValues,
             };
         }
 
-        public async Task UpdateSensorGroup(Guid userId, Guid id, SensorGroupData data)
+        public async Task UpdateSensorGroup(Guid userId, Guid id, SensorGroupData data, string role = "")
         {
-            var entity = await _context.SensorGroups.FirstOrDefaultAsync(sg => sg.UserId == userId && sg.Id == id);
+            var entity = await _sensorGroupCollection.Find(sg => sg.Id == id).FirstOrDefaultAsync();
 
             if (entity == null) throw new ArgumentNullException("Not found");
 
-            entity.Name = data.Name;
-            entity.UpdatedAt = DateTime.Now;
+            if (entity.UserId != userId && role != "Admin") throw new UnauthorizedAccessException();
 
-            await _context.SaveChangesAsync();            
+            var filter = Builders<SensorGroup>.Filter.Eq(s => s.Id, id);
+            var update = Builders<SensorGroup>.Update
+                .Set(sg => sg.Name, data.Name)
+                .Set(sg => sg.UpdatedAt, DateTime.Now);
+
+            await _sensorGroupCollection.UpdateOneAsync(filter, update);            
         }
     }
 }

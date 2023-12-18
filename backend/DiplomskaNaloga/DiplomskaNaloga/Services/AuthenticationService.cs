@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
-using Data;
-using Data.Entity;
+using Entity;
 using DiplomskaNaloga.Models;
+using DiplomskaNaloga.Settings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using SharpCompress.Common;
 
 namespace DiplomskaNaloga.Services
@@ -14,40 +17,55 @@ namespace DiplomskaNaloga.Services
     }
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly databaseContext _context;
         private readonly IMapper _mapper;
         private readonly IJwtService _jwtService;
         private readonly IPasswordService _passwordService;
+        private readonly IMongoCollection<User> _collection;
 
-        public AuthenticationService(databaseContext context, IMapper mapper, IJwtService jwtService, IPasswordService passwordService)
+        public AuthenticationService(
+            IMapper mapper,
+            IJwtService jwtService,
+            IPasswordService passwordService,
+            IOptions<MongoDbSettings> options)
         {
-            _context = context;
             _mapper = mapper;
             _jwtService = jwtService;
             _passwordService = passwordService;
+
+            var settings = options.Value;
+
+            var mongoClient = new MongoClient(settings.ConnectionString);
+            var mongoDb = mongoClient.GetDatabase(settings.DatabaseName);
+
+            _collection = mongoDb.GetCollection<User>(settings.CollectionUsersName);
         }
         public async Task<UserDto> SignIn(UserLogin request)
         {
-            var entity = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-            if (entity == null) throw new ArgumentException("Username or password incorrect!");
+            var filter = Builders<User>.Filter.Or(
+                    Builders<User>.Filter.Eq("Username", request.Username)
+                );
+            var entityUser = _collection.Find(filter).FirstOrDefault();
+            if (entityUser == null) throw new ArgumentException("Username or password incorrect!");
 
-            if (_passwordService.Verify(request.Password, entity.Password, entity.PasswordHash) == false) throw new ArgumentException("Username or password incorrect!");
+            if (_passwordService.Verify(request.Password, entityUser.Password, entityUser.PasswordHash) == false) throw new ArgumentException("Username or password incorrect!");
 
 
-            _jwtService.CreateRefreshToken(entity);
+            _jwtService.CreateRefreshToken(entityUser);
 
-            await _context.SaveChangesAsync();
 
-            var userDto = _mapper.Map<UserDto>(entity);
-
-            userDto.AccessToken = _jwtService.CreateAccesToken(userDto);
-
+            var userDto = _mapper.Map<UserDto>(entityUser);
+            userDto.AccessToken = _jwtService.CreateAccesToken(entityUser);
             return userDto;
         }
 
         public async Task<UserDto> SignUp(UserRequest request)
         {
-            var entityUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username || u.Email == request.Email);
+
+            var filter = Builders<User>.Filter.Or(
+                    Builders<User>.Filter.Eq("Username", request.Username),
+                    Builders<User>.Filter.Eq("Email", request.Email)
+                );
+            var entityUser =  _collection.Find(filter).FirstOrDefault();
             if (entityUser != null)
             {
                 throw new ArgumentException("Username or email address already exists!");
@@ -56,18 +74,17 @@ namespace DiplomskaNaloga.Services
             entityUser = _mapper.Map<User>(request);
             entityUser.Password = _passwordService.Hash(request.Password, out var salt);
             entityUser.PasswordHash = salt;
+            entityUser.Id = Guid.NewGuid();
+            entityUser.IsAdmin = false;
 
-            await _context.Users.AddAsync(entityUser);
-            await _context.SaveChangesAsync();
+            await _collection.InsertOneAsync(entityUser);
 
 
             _jwtService.CreateRefreshToken(entityUser);
 
-            await _context.SaveChangesAsync();
-
             var userDto = _mapper.Map<UserDto>(entityUser);
 
-            userDto.AccessToken = _jwtService.CreateAccesToken(userDto);
+            userDto.AccessToken = _jwtService.CreateAccesToken(entityUser);
 
             return userDto;
         }

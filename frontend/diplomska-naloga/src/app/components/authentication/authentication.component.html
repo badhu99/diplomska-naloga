@@ -6,4 +6,7 @@
         <label class="left" (click)="navigateTo('signin')" [ngClass]="{'active':currentUrl === 'signin'}">Sign in</label>
         <label class="right" (click)="navigateTo('signup')" [ngClass]="{'active':currentUrl === 'signup'}">Sign up</label>
     </div>
+    <div class="div-view-data">
+        <button class="btn" (click)="navigateToData()" [ngClass]="{'active':currentUrl === 'signin'}">View data</button>
+    </div>
 </div>

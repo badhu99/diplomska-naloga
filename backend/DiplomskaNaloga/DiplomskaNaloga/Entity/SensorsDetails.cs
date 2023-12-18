@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace Data.Entity
+namespace Entity
 {
     [BsonIgnoreExtraElements]
     public class SensorsDetails

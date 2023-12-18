@@ -1,5 +1,4 @@
 
-using Data;
 using DiplomskaNaloga.Services;
 using DiplomskaNaloga.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -52,9 +51,6 @@ namespace DiplomskaNaloga
 
             builder.Services.Configure<JwtSettings>(options => builder.Configuration.GetSection(JwtSettings.Position).Bind(options));
             builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(MongoDbSettings.Section));
-
-
-            builder.Services.AddDbContext<databaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IJwtService, JwtService>();

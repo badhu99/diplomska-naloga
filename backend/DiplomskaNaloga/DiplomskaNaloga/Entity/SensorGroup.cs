@@ -1,7 +1,9 @@
-﻿using System;
-namespace Data.Entity
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace Entity
 {
-	public partial class SensorGroup
+    [BsonIgnoreExtraElements]
+    public partial class SensorGroup
 	{
 		public Guid Id { get; set; }
 		public Guid UserId { get; set; }

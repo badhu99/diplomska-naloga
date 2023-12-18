@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ISensorDetails } from 'src/app/interfaces/sensor-details';
 import { SensorDetailsService } from 'src/app/services/api/sensor-details.service';
 import { StateStorageService } from 'src/app/services/common/state-storage.service';
@@ -25,19 +25,24 @@ export class DetailsSensorComponent implements OnInit {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
   };
 
+  isUserAdmin = false;
+  userId:string | undefined = undefined;
+
   showXAxis = true;
   showYAxis = true;
   showXAxisLabel = true;
   showYAxisLabel = true;
   xAxisLabel = '';
   yAxisLabel = '';
+  userLoggedIn = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private sensorDetailsService: SensorDetailsService,
     private fb: FormBuilder,
     private datePipe: DatePipe,
-    private serviceStateStorage:StateStorageService
+    private serviceStateStorage:StateStorageService,
+    private router: Router
   ) {}
 
   onSelect(event: any) {
@@ -51,6 +56,18 @@ export class DetailsSensorComponent implements OnInit {
     this.formAddData = this.fb.group({
       data: ['', Validators.required],
     });
+    this.serviceStateStorage.checkIfJwtSaved()
+    this.serviceStateStorage.getAuthData.subscribe(value => {
+      this.userLoggedIn = value;
+    })
+
+    this.serviceStateStorage.isUserAdmin.subscribe(value => {
+      this.isUserAdmin = value
+    })
+
+    this.serviceStateStorage.getUserId.subscribe(value => {
+      this.userId = value
+    })
   }
 
   toggleShowModalAddData() {
@@ -73,6 +90,10 @@ export class DetailsSensorComponent implements OnInit {
 
   logout() {
     this.serviceStateStorage.removeJwt();
+  }
+
+  navigateToLogin(){
+    this.router.navigate(['../auth'])
   }
 
   private getSensorDetailsData(groupId: string) {

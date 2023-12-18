@@ -17,11 +17,11 @@ namespace DiplomskaNaloga.Controllers
             _logger = logger;
         }
 
-		[HttpPost("{id}"), Authorize]
+		[HttpPost("{id}")]
 		public async Task<IActionResult> Add([FromBody] SensorDetailsData body, Guid id) {
 			try
 			{
-                await _service.AddData(id, UserId!.Value, body);
+                await _service.AddData(id, UserId!.Value, body, Role);
                 return NoContent();
             }
 			catch (Exception ex)
@@ -31,11 +31,11 @@ namespace DiplomskaNaloga.Controllers
 			
 		}
 
-		[HttpGet("{sensorGroupId}"), Authorize]
+		[HttpGet("{sensorGroupId}"), AllowAnonymous]
 		public async Task<IActionResult> GetData(Guid sensorGroupId, [FromQuery] int pageSize = 12, [FromQuery] int pageNumber = 1) {
 			try
 			{
-				var result = await _service.GetData(sensorGroupId, UserId!.Value, pageNumber, pageSize);
+				var result = await _service.GetData(sensorGroupId, pageNumber, pageSize);
                 return Ok(result);
 			}
 			catch (UnauthorizedAccessException e) {
