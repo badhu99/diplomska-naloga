@@ -23,4 +23,5 @@ public partial class User
 
     public DateTime? RefreshTokenExpiration { get; set; }
     public bool IsAdmin { get; set; }
+    public bool IsActive { get; set; }
 }

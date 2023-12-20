@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CheckLoginGuard } from './services/auth/check-login.guard';
 import { AuthorizationGuard } from './services/auth/authorization.guard';
+import { UsersOverviewComponent } from './components/users/users-overview/users-overview.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/sensors', pathMatch: 'full' },
@@ -21,6 +22,11 @@ const routes: Routes = [
       ),
       // canActivate: [AuthorizationGuard]
   },
+  {
+    path: 'users',
+    component: UsersOverviewComponent,
+    canActivate: [AuthorizationGuard]
+  }
 ];
 
 @NgModule({

@@ -12,6 +12,7 @@ namespace Entity
 		public DateTime UpdatedAt { get; set; }
 		public string? ColumnX { get; set; }
 		public string? ColumnY { get; set; }
+		public string Hash { get; set; }
 	}
 }
 

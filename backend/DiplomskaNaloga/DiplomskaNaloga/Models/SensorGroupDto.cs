@@ -7,6 +7,7 @@ namespace DiplomskaNaloga.Models
         public Guid UserId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string SensorHash { get; set; }
     }
 
     public class SensorGroupData

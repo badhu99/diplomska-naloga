@@ -22,7 +22,7 @@ namespace DiplomskaNaloga.Controllers
         {
             try
             {
-                var result = await _sensorService.GetPagination(pageNumber, pageSize, orderDesc, orderBy);
+                var result = await _sensorService.GetPagination(UserId, pageNumber, pageSize, orderDesc, orderBy);
                 return Ok(result);
             }
             catch (Exception ex)

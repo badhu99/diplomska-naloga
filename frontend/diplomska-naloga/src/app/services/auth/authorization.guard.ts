@@ -13,7 +13,7 @@ export class AuthorizationGuard implements CanActivate, CanActivateChild {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      if(this.stateService.checkIfJwtSaved()){
+      if(this.stateService.checkIfAdmin()){
         return true;
       }
       else{

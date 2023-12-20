@@ -32,6 +32,15 @@ export class StateStorageService {
     localStorage.setItem(this.jwtConstName, jwt);
   }
 
+  checkIfAdmin(){
+    const payload = this.getJwtData()
+    const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+    if(role === "Admin"){
+      return true;
+    }
+    return false;
+  }
+
   checkIfJwtSaved(){
     const jwt = localStorage.getItem(this.jwtConstName);
     if (jwt){

@@ -12,9 +12,10 @@ namespace DiplomskaNaloga.Models
 	public class SensorDetailsData
     {
         public dynamic Body { get; set; }
+        public string SensorHash { get; set; }
     }
 
-	public class SensorDetailsContent
+    public class SensorDetailsContent
 	{
         public string Name { get; set; }
         public List<dynamic> Series { get; set; }
@@ -27,6 +28,7 @@ namespace DiplomskaNaloga.Models
         public string XAxis { get; set; }
         public string YAxis { get; set; }
         public Guid UserId { get; set; }
+        public string SensorHash { get; set; }
 
     }
 }

@@ -58,6 +58,8 @@ namespace DiplomskaNaloga
 
             builder.Services.AddScoped<ISensorService, SensorService>();
             builder.Services.AddScoped<ISensorDataService, SensorDataService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
 
             builder.Services.AddAutoMapper(typeof(Program));
 

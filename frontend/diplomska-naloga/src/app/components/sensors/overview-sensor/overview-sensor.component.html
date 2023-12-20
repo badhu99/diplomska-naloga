@@ -4,14 +4,19 @@
         <button class="btn create-new" (click)="toggleModalCreateNew()" *ngIf="userLoggedIn">Create new</button>
         <h1>All sensor data</h1>
         <div>
-            <button class="btn logout" *ngIf="isUserAdmin">View users</button>
+            <button class="btn logout" (click)="navigateViewUsers()" *ngIf="isUserAdmin">View users</button>
             <button class="btn logout" (click)="logout()" *ngIf="userLoggedIn">Logout</button>
         </div>
         <button class="btn logout" (click)="navigateToLogin()" *ngIf="!userLoggedIn">Login</button>
     </div>
     <div class="div-data-group" id="group-{{i}}" *ngFor="let item of sensorGroups; let i = index">
-        <label class="group-close" (click)="deleteSensorGroup(item)" *ngIf="userLoggedIn && checkUserPermission(item)">&times;</label>
-        <h1>{{item.name}}</h1>
+        <div *ngIf="userLoggedIn && checkUserPermission(item)">
+            <p></p>
+            <label class="group-close" (click)="toggleShowHash(item)" *ngIf="userLoggedIn && checkUserPermission(item) && item.showHash === false || item.showHash === undefined && item.sensorHash !== null">&larr;</label>
+            <label class="group-close" (click)="toggleShowHash(item)" *ngIf="userLoggedIn && checkUserPermission(item) && item.showHash === true">&rarr;</label>
+            <label class="group-close" (click)="deleteSensorGroup(item)">&times;</label>
+        </div>
+        <h1>{{item.showHash === true ? item.sensorHash : item.name}}</h1>
         <button class="btn" (click)="openSensorGroup(item)">OPEN</button>
     </div>
 </div>

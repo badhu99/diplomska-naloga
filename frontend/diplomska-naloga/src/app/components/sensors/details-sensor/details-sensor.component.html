@@ -25,7 +25,6 @@
 <div class="modal-overlay" [style.visibility]="showModalAddData || (userLoggedIn && containsData == false)? 'visible' : 'hidden'" *ngIf="sensorsData">
     <div class="modal-content">
         <form [formGroup]="formAddData" (ngSubmit)="onAddData(formAddData)">
-
             <label class="close close-label" (click)="toggleShowModalAddData()">&times;</label>
             <h1>Add data</h1>
             <label class="label-placeholder">Add data for graph</label>

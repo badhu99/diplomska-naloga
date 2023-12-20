@@ -77,9 +77,9 @@ export class DetailsSensorComponent implements OnInit {
 
   onAddData(fb: FormGroup) {
     if (fb.valid) {
-      console.log(fb.value.data);
+      console.log(this.sensorsData.sensorHash);
       this.sensorDetailsService
-        .addData(this.sensorGroupId, fb.value.data)
+        .addData(this.sensorGroupId,this.sensorsData.sensorHash, fb.value.data)
         .subscribe((_) => {
           this.getSensorDetailsData(this.sensorGroupId);
           this.showModalAddData = false;

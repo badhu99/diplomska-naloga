@@ -48,7 +48,7 @@ namespace DiplomskaNaloga.Services
             if (entityUser == null) throw new ArgumentException("Username or password incorrect!");
 
             if (_passwordService.Verify(request.Password, entityUser.Password, entityUser.PasswordHash) == false) throw new ArgumentException("Username or password incorrect!");
-
+            if (entityUser.IsActive == false) throw new ArgumentException("User not yet activated");
 
             _jwtService.CreateRefreshToken(entityUser);
 
@@ -76,6 +76,7 @@ namespace DiplomskaNaloga.Services
             entityUser.PasswordHash = salt;
             entityUser.Id = Guid.NewGuid();
             entityUser.IsAdmin = false;
+            entityUser.IsActive = false;
 
             await _collection.InsertOneAsync(entityUser);
 

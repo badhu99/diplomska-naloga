@@ -3,7 +3,8 @@ export interface ISensorDetails {
     content:IContent[],
     xAxis:string,
     yAxis:string,
-    userId: string
+    userId: string,
+    sensorHash: string,
 }
 
 export interface IContent{

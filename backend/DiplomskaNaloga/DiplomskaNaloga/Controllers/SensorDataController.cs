@@ -35,7 +35,7 @@ namespace DiplomskaNaloga.Controllers
 		public async Task<IActionResult> GetData(Guid sensorGroupId, [FromQuery] int pageSize = 12, [FromQuery] int pageNumber = 1) {
 			try
 			{
-				var result = await _service.GetData(sensorGroupId, pageNumber, pageSize);
+				var result = await _service.GetData(UserId, sensorGroupId, pageNumber, pageSize);
                 return Ok(result);
 			}
 			catch (UnauthorizedAccessException e) {

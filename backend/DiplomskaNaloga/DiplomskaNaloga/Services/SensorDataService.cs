@@ -12,7 +12,7 @@ namespace DiplomskaNaloga.Services
 {
     public interface ISensorDataService {
 		Task AddData(Guid sensorGroupId, Guid userId, SensorDetailsData data, string role);
-		Task<SensorDetailsResponse> GetData(Guid sensorGroupId, int pageNumber, int pageSize);
+		Task<SensorDetailsResponse> GetData(Guid? userId, Guid sensorGroupId, int pageNumber, int pageSize);
 
     }
     public class SensorDataService : ISensorDataService
@@ -32,7 +32,7 @@ namespace DiplomskaNaloga.Services
             _sensorGroupCollection = mongoDb.GetCollection<SensorGroup>(settings.CollectionGroupName);
         }
 
-		public async Task<SensorDetailsResponse> GetData(Guid sensorGroupId, int pageNumber, int pageSize) {
+		public async Task<SensorDetailsResponse> GetData(Guid? userId, Guid sensorGroupId, int pageNumber, int pageSize) {
 			var sensorGroup = await _sensorGroupCollection.Find(sgc => sgc.Id == sensorGroupId).FirstOrDefaultAsync();
 			if (sensorGroup == null) throw new UnauthorizedAccessException();
 
@@ -68,6 +68,10 @@ namespace DiplomskaNaloga.Services
 
 			response.Content.Add(responseContent);
 			response.UserId = sensorGroup.UserId;
+			if(userId.HasValue && userId.Value == sensorGroup.UserId)
+			{
+				response.SensorHash = sensorGroup.Hash;
+			}
 
 			return response;
         }
@@ -76,6 +80,7 @@ namespace DiplomskaNaloga.Services
 		public async Task AddData(Guid sensorGroupId, Guid userId, SensorDetailsData data, string role = "")
 		{
 			var sensorGroup = await _sensorGroupCollection.Find(sgc => sgc.Id == sensorGroupId).FirstOrDefaultAsync();
+			if (sensorGroup.Hash != data.SensorHash) throw new Exception("Invalid hash");
 
 			if (sensorGroup == null) throw new ArgumentException("Group not found");
 

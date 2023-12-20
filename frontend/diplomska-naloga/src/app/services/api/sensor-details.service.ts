@@ -18,10 +18,11 @@ export class SensorDetailsService {
     return this.http.get<ISensorDetails>(url)
   }
 
-  addData(groupId: string, data:string):Observable<void>{
+  addData(groupId: string, hash: string, data:string):Observable<void>{
     const url = `${this.endpoint}/Add/${groupId}`;
     const bodyRequest = {
-      body: data
+      body: data,
+      sensorHash: hash
     };
     return this.http.post<void>(url, bodyRequest);
   }

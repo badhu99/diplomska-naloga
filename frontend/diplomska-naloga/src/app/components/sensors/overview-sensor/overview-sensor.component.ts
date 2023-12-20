@@ -25,6 +25,8 @@ export class OverviewSensorComponent implements OnInit {
 
   sensorGroups: SensorGroup[] = [];
 
+  showHash = false;
+
   constructor(
     private serviceSensorGroup: SensorGroupService,
     private router: Router,
@@ -46,11 +48,12 @@ export class OverviewSensorComponent implements OnInit {
     })
 
     this.serviceStateStorage.isUserAdmin.subscribe(value => {
-      this.isUserAdmin = value
+      this.isUserAdmin = value;
+      console.log(this.isUserAdmin)
     })
 
     this.serviceStateStorage.getUserId.subscribe(value => {
-      this.userId = value
+      this.userId = value;
     })
   }
 
@@ -83,12 +86,20 @@ export class OverviewSensorComponent implements OnInit {
     }
   }
 
+  toggleShowHash(item:SensorGroup){
+    item.showHash = !item.showHash;
+  }
+
   logout() {
     this.serviceStateStorage.removeJwt();
   }
 
   navigateToLogin(){
     this.router.navigate(['../auth'])
+  }
+
+  navigateViewUsers(){
+    this.router.navigate(["../users"]);
   }
 
   checkUserPermission(item: SensorGroup){

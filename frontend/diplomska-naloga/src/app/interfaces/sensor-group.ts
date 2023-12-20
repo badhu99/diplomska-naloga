@@ -4,4 +4,6 @@ export interface SensorGroup {
     createdAt: Date;
     updatedAt: Date;
     name:      string;
+    sensorHash: string;
+    showHash:boolean;
 }

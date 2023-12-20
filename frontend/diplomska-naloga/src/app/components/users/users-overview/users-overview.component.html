@@ -1,0 +1,15 @@
+<div class="div-container">
+    <div class="div-header">
+        <p *ngIf="!userLoggedIn"> </p>
+        <h1>Users</h1>
+        <div>
+            <button class="btn logout" (click)="logout()" *ngIf="userLoggedIn">Logout</button>
+        </div>
+    </div>
+    <div class="div-data-group card" id="group-{{i}}" *ngFor="let item of users; let i = index">
+        <h4>{{item.username}}</h4>
+        <small>{{item.email}}</small>
+        <button (click)="toggleActivate(item, true)" class="btn btn-green" *ngIf="item.isActive === false">Activate</button>
+        <button (click)="toggleActivate(item, false)" class="btn btn-red" *ngIf="item.isActive === true && item.id !== userId ">Disable</button>
+    </div>
+</div>

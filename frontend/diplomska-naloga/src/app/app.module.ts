@@ -5,10 +5,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HttpRequestInterceptor } from './services/middleware/http-request.interceptor';
+import { UsersOverviewComponent } from './components/users/users-overview/users-overview.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    UsersOverviewComponent
   ],
   imports: [
     BrowserModule,

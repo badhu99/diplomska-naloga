@@ -9,12 +9,13 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using DiplomskaNaloga.Settings;
 using System.Data;
+using System.Text;
 
 namespace DiplomskaNaloga.Services
 {
     public interface ISensorService
     {
-        Task<Pagination<SensorGroupDto>> GetPagination(int pageNumber, int pageSize, bool OrderDesc, EnumSensorGroup orderBy);
+        Task<Pagination<SensorGroupDto>> GetPagination(Guid? userId, int pageNumber, int pageSize, bool OrderDesc, EnumSensorGroup orderBy);
         Task<Guid> AddNewSensorGroup(Guid userId, SensorGroupData data);
         Task DeleteSensorGroup(Guid userId, Guid id, string role);
         Task UpdateSensorGroup(Guid userId, Guid id, SensorGroupData data, string role);
@@ -59,7 +60,8 @@ namespace DiplomskaNaloga.Services
                 ColumnX = data.ColumnX,
                 ColumnY = data.ColumnY,
                 CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
+                Hash = GenerateRandomString(16),
             };
 
             await _sensorGroupCollection.InsertOneAsync(entity);
@@ -76,7 +78,7 @@ namespace DiplomskaNaloga.Services
             await _sensorGroupCollection.DeleteOneAsync(sga => sga.Id == id);
         }
 
-        public async Task<Pagination<SensorGroupDto>> GetPagination(int pageNumber, int pageSize, bool orderDesc, EnumSensorGroup orderBy)
+        public async Task<Pagination<SensorGroupDto>> GetPagination(Guid? userId, int pageNumber, int pageSize, bool orderDesc, EnumSensorGroup orderBy)
         {
             var entities = _sensorGroupCollection.Find(_ => true).ToEnumerable();
 
@@ -118,7 +120,12 @@ namespace DiplomskaNaloga.Services
             foreach (var entity in entities.Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize))
             {
-                returnValues.Add(_mapper.Map<SensorGroupDto>(entity));
+                var returnValue = _mapper.Map<SensorGroupDto>(entity);
+                if (userId.HasValue && userId.Value == entity.UserId)
+                {
+                    returnValue.SensorHash = entity.Hash;
+                }
+                returnValues.Add(returnValue);
             }
 
 
@@ -145,6 +152,22 @@ namespace DiplomskaNaloga.Services
                 .Set(sg => sg.UpdatedAt, DateTime.Now);
 
             await _sensorGroupCollection.UpdateOneAsync(filter, update);            
+        }
+
+        private string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            StringBuilder randomStringBuilder = new StringBuilder(length);
+
+            Random random = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                int index = random.Next(chars.Length);
+                randomStringBuilder.Append(chars[index]);
+            }
+
+            return randomStringBuilder.ToString();
         }
     }
 }
