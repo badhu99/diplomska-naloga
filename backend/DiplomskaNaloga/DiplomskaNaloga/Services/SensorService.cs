@@ -62,6 +62,9 @@ namespace DiplomskaNaloga.Services
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 Hash = GenerateRandomString(16),
+                Description = data.Description,
+                Lat = data.Lat,
+                Long = data.Long,
             };
 
             await _sensorGroupCollection.InsertOneAsync(entity);

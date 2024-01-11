@@ -6,4 +6,7 @@ export interface SensorGroup {
     name:      string;
     sensorHash: string;
     showHash:boolean;
+    description: string;
+    lat: number;
+    long: number;
 }

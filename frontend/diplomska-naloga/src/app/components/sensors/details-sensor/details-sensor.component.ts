@@ -35,6 +35,9 @@ export class DetailsSensorComponent implements OnInit {
   xAxisLabel = '';
   yAxisLabel = '';
   userLoggedIn = false;
+  // 
+  // `Do you want to delete ${sg.name}`
+  curlExample = ""
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -73,6 +76,8 @@ export class DetailsSensorComponent implements OnInit {
   toggleShowModalAddData() {
     this.showModalAddData = !this.showModalAddData;
     this.formAddData.reset();
+    this.curlExample = `curl --location --request POST 'https://localhost:44388/api/SensorData/Add/fddf28f3-d98c-45d7-b991-0becd2b881e6' --header 'api-key: ${this.sensorsData.sensorHash}' --data 'ADD DATA HERE'`
+
   }
 
   onAddData(fb: FormGroup) {

@@ -21,12 +21,15 @@ export class SensorGroupService {
     return this.http.delete<void>(url);
   }
 
-  createNew(name:string, xAxis:string, yAxis:string):Observable<string>{
+  createNew(name:string, xAxis:string, yAxis:string, description:string, lat:number, long: number):Observable<string>{
     const url = `${this.endpoint}/AddSensorGroup`;
     const body = {
       name,
       columnX:xAxis,
-      columnY:yAxis
+      columnY:yAxis,
+      description,
+      lat,
+      long
     }    
     return this.http.post<string>(url, body);
   }

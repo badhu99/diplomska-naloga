@@ -7,7 +7,14 @@
         <button class="btn" *ngIf="!userLoggedIn" (click)="navigateToLogin()" >Login</button>
     </div>
     <div class="div-content" *ngIf="containsData">
+        <div class="div-filters">
+            <h2>Filters</h2>
+            <label>Start date:</label>
+            <input type="date" />
+            <label>End date:</label>
+            <input type="datetime"  />
 
+        </div>
         <ngx-charts-line-chart *ngIf="sensorsData.content.length > 0"
         [view]="view"
         [results]="sensorsData.content"
@@ -27,7 +34,7 @@
         <form [formGroup]="formAddData" (ngSubmit)="onAddData(formAddData)">
             <label class="close close-label" (click)="toggleShowModalAddData()">&times;</label>
             <h1>Add data</h1>
-            <label class="label-placeholder">Add data for graph</label>
+            <label class="label-placeholder">{{curlExample}}</label>
             <textarea data-1p-ignore spellcheck="false" formControlName="data"></textarea>
             <button type="submit" class="btn">Create</button>
         </form>

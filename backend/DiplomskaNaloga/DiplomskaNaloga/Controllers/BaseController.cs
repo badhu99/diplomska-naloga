@@ -12,9 +12,9 @@ namespace DiplomskaNaloga.Controllers
         {
             get
             {
-                string id = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value;
-                if (Guid.TryParse(id, out Guid userId)) return userId;
-                return null;
+                var id = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier);                
+                if (id != null && Guid.TryParse(id.Value, out Guid userId)) return userId;
+                return Guid.Empty;
             }
         }
 

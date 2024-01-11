@@ -7,21 +7,21 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HttpRequestInterceptor } from './services/middleware/http-request.interceptor';
 import { UsersOverviewComponent } from './components/users/users-overview/users-overview.component';
 
+
 @NgModule({
-  declarations: [
-    AppComponent,
-    UsersOverviewComponent
-  ],
+  declarations: [AppComponent, UsersOverviewComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
   ],
-  providers: [{
-    provide: HTTP_INTERCEPTORS,
-    useClass: HttpRequestInterceptor,
-    multi: true,     
-  }],
-  bootstrap: [AppComponent]
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpRequestInterceptor,
+      multi: true,
+    },
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

@@ -39,6 +39,9 @@ export class OverviewSensorComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(4)]],
       xAxis: ['', Validators.required],
       yAxis: ['', Validators.required],
+      description: ['', Validators.required],
+      lat: [0, Validators.required],
+      long: [0, Validators.required],
     });
 
     this.serviceStateStorage.checkIfJwtSaved()
@@ -49,7 +52,6 @@ export class OverviewSensorComponent implements OnInit {
 
     this.serviceStateStorage.isUserAdmin.subscribe(value => {
       this.isUserAdmin = value;
-      console.log(this.isUserAdmin)
     })
 
     this.serviceStateStorage.getUserId.subscribe(value => {
@@ -58,8 +60,9 @@ export class OverviewSensorComponent implements OnInit {
   }
 
   onCreateNew(fb: FormGroup) {
+    console.log("fbValid", fb.valid, fb)
     if (fb.valid) {
-      this.serviceSensorGroup.createNew(fb.value.name, fb.value.xAxis, fb.value.yAxis).subscribe((id) => {
+      this.serviceSensorGroup.createNew(fb.value.name, fb.value.xAxis, fb.value.yAxis, fb.value.description, fb.value.lat, fb.value.long).subscribe((id) => {
         this.showModal = false;
         fb.reset()
         this.router.navigate(['sensors', id])

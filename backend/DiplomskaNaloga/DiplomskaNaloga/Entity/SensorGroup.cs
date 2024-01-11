@@ -13,6 +13,9 @@ namespace Entity
 		public string? ColumnX { get; set; }
 		public string? ColumnY { get; set; }
 		public string Hash { get; set; }
-	}
+		public string Description { get; set; }
+		public double Lat { get; set; }
+		public double Long { get; set; }
+    }
 }
 

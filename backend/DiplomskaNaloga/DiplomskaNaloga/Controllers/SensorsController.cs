@@ -22,7 +22,8 @@ namespace DiplomskaNaloga.Controllers
         {
             try
             {
-                var result = await _sensorService.GetPagination(UserId, pageNumber, pageSize, orderDesc, orderBy);
+                var c = UserId.HasValue;
+                var result = await _sensorService.GetPagination(UserId.HasValue ? UserId : Guid.Empty, pageNumber, pageSize, orderDesc, orderBy);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -36,7 +37,6 @@ namespace DiplomskaNaloga.Controllers
         {
             try
             {
-                var c = Role;
                 var result = await _sensorService.AddNewSensorGroup(UserId!.Value, data);
                 return Created(result.ToString(), result);
             }
