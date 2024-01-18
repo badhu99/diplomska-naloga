@@ -8,7 +8,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { ReactiveFormsModule } from '@angular/forms';
 
 
-import { MatDatepickerModule } from '@angular/material/datepicker';
+// import { MatDatepickerModule } from '@angular/material/datepicker';
 
 
 @NgModule({
@@ -21,7 +21,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     SensorsRoutingModule,
     NgxChartsModule,
     ReactiveFormsModule,
-    MatDatepickerModule
+    // MatDatepickerModule
   ],
   providers:[
     DatePipe

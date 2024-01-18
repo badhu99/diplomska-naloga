@@ -12,7 +12,7 @@ namespace DiplomskaNaloga.Models
 	public class SensorDetailsData
     {
         public dynamic Body { get; set; }
-        public string SensorHash { get; set; }
+        //public string SensorHash { get; set; }
     }
 
     public class SensorDetailsContent

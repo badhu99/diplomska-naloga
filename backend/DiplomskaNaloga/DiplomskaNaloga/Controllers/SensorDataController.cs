@@ -17,12 +17,18 @@ namespace DiplomskaNaloga.Controllers
             _logger = logger;
         }
 
-		[HttpPost("{id}")]
+		[HttpPost("{id}"), AllowAnonymous]
 		public async Task<IActionResult> Add([FromBody] SensorDetailsData body, Guid id) {
 			try
 			{
-                await _service.AddData(id, UserId!.Value, body, Role);
-                return NoContent();
+                string apiKey = Request.Headers["X-API-Key"];
+
+				var allowed = await _service.VerifyApiKey(id, apiKey);
+				if (allowed == false) return Unauthorized();
+
+                await _service.AddData(id, body);
+
+				return NoContent();
             }
 			catch (Exception ex)
 			{
@@ -32,10 +38,10 @@ namespace DiplomskaNaloga.Controllers
 		}
 
 		[HttpGet("{sensorGroupId}"), AllowAnonymous]
-		public async Task<IActionResult> GetData(Guid sensorGroupId, [FromQuery] int pageSize = 12, [FromQuery] int pageNumber = 1) {
+		public async Task<IActionResult> GetData(Guid sensorGroupId, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null) {
 			try
 			{
-				var result = await _service.GetData(UserId, sensorGroupId, pageNumber, pageSize);
+                var result = await _service.GetData(UserId, sensorGroupId, startDate, endDate);
                 return Ok(result);
 			}
 			catch (UnauthorizedAccessException e) {

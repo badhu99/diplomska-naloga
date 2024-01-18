@@ -20,6 +20,9 @@ export class DetailsSensorComponent implements OnInit {
   showModalAddData = false;
   containsData!: boolean;
 
+  startDate:Date | null = null;
+  endDate:Date | null = null;
+
   view: [number, number] = [700, 500];
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
@@ -35,10 +38,8 @@ export class DetailsSensorComponent implements OnInit {
   xAxisLabel = '';
   yAxisLabel = '';
   userLoggedIn = false;
-  // 
-  // `Do you want to delete ${sg.name}`
   curlExample = ""
-
+  filtersForms!: FormGroup;
   constructor(
     private activatedRoute: ActivatedRoute,
     private sensorDetailsService: SensorDetailsService,
@@ -56,6 +57,16 @@ export class DetailsSensorComponent implements OnInit {
       this.sensorGroupId = params['id'];
       this.getSensorDetailsData(this.sensorGroupId);
     });
+
+
+    this.filtersForms = this.fb.group({
+      startDate: [''],
+      startTime: [''],
+      endDate: [''],
+      endTime: [''],
+    });
+
+
     this.formAddData = this.fb.group({
       data: ['', Validators.required],
     });
@@ -101,9 +112,61 @@ export class DetailsSensorComponent implements OnInit {
     this.router.navigate(['../auth'])
   }
 
+  handleStartDateChange(event: any){
+    console.log(event)
+  }
+
+  submitFilter(fb: FormGroup){
+    let startDate:Date |null = null;
+    let endDate:Date |null = null;
+
+    if (fb.value.startDate){
+      if(startDate === null){
+        startDate = new Date();
+      }
+      const [year, month, day] = fb.value.startDate.split('-').map(Number);
+      startDate.setFullYear(year);
+      startDate.setMonth(month - 1);
+      startDate.setDate(day);
+    }
+    if(fb.value.startTime){
+      if(startDate === null){
+        startDate = new Date();
+      }
+      const [hours, minutes] = fb.value.startTime.split(':').map(Number);
+      startDate.setHours(hours);
+      startDate.setMinutes(minutes);
+    }
+
+    if (fb.value.endDate){
+      if(endDate === null){
+        endDate = new Date();
+      }
+      const [year, month, day] = fb.value.endDate.split('-').map(Number);
+      endDate.setFullYear(year);
+      endDate.setMonth(month - 1);
+      endDate.setDate(day);
+    }
+    if(fb.value.endTime){
+      if(endDate === null){
+        endDate = new Date();
+      }
+      const [hours, minutes] = fb.value.endTime.split(':').map(Number);
+      endDate.setHours(hours);
+      endDate.setMinutes(minutes);
+    }
+
+    this.startDate = startDate;
+    this.endDate = endDate;
+
+    console.log("selectedDate", startDate, endDate)
+
+    this.getSensorDetailsData(this.sensorGroupId)
+  }
+
   private getSensorDetailsData(groupId: string) {
     this.sensorDetailsService
-      .getSensorData(groupId, this.pageSize, this.pageNumber)
+      .getSensorData(groupId, this.startDate, this.endDate)
       .subscribe((data) => {
         this.sensorsData = data;
         this.sensorsData.content[0].series.map((item) => {
@@ -119,7 +182,7 @@ export class DetailsSensorComponent implements OnInit {
         if (this.sensorsData.content[0]?.series.length > 0) {
           this.containsData = true;
         } else {
-          this.containsData = false;
+          // this.containsData = false;
         }
       });
   }

@@ -8,12 +8,17 @@
     </div>
     <div class="div-content" *ngIf="containsData">
         <div class="div-filters">
-            <h2>Filters</h2>
-            <label>Start date:</label>
-            <input type="date" />
-            <label>End date:</label>
-            <input type="datetime"  />
 
+            <form [formGroup]="filtersForms" (ngSubmit)="submitFilter(filtersForms)">
+                <h2>Filters</h2>
+                <label>Start date:</label>
+                <input type="date" formControlName="startDate" />
+                <input type="time" formControlName="startTime" />
+                <label>End date:</label>
+                <input type="date" formControlName="endDate"/>
+                <input type="time" formControlName="endTime" />    
+                <button type="submit" class="btn">Set</button>
+            </form>
         </div>
         <ngx-charts-line-chart *ngIf="sensorsData.content.length > 0"
         [view]="view"

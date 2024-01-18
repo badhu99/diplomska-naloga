@@ -13,8 +13,30 @@ export class SensorDetailsService {
   endpoint = `${environment.apiUrl}/api/SensorData`
   constructor(private http:HttpClient) { }
 
-  getSensorData(groupId: string, pageSize: number, pageNumber: number):Observable<ISensorDetails>{
-    const url = `${this.endpoint}/GetData/${groupId}?pageNumber=${pageNumber}&pageSize=${pageSize}`
+  getSensorData(groupId: string, startDate: null | Date, endDate: null | Date):Observable<ISensorDetails>{
+    let url = `${this.endpoint}/GetData/${groupId}`;
+
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+  };
+
+    if(startDate !== null){
+      url += `?startDate=${startDate.toLocaleString('en-US', options)}`
+    }
+    if(endDate !== null){
+      if(url.includes('?')){
+        url += `&`
+      }else{
+        url += `?`
+      }
+      url += `endDate=${endDate.toLocaleTimeString('en-US', options)}`
+    }
     return this.http.get<ISensorDetails>(url)
   }
 

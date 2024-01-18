@@ -8,11 +8,14 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using System.Globalization;
+
 namespace DiplomskaNaloga.Services
 {
     public interface ISensorDataService {
-		Task AddData(Guid sensorGroupId, Guid userId, SensorDetailsData data, string role);
-		Task<SensorDetailsResponse> GetData(Guid? userId, Guid sensorGroupId, int pageNumber, int pageSize);
+		Task AddData(Guid sensorGroupId, SensorDetailsData data);
+		Task<SensorDetailsResponse> GetData(Guid? userId, Guid sensorGroupId, DateTime? startDate = null, DateTime? EndDate = null);
+		Task<bool> VerifyApiKey(Guid sensorGroupId, string apiKey);
 
     }
     public class SensorDataService : ISensorDataService
@@ -32,7 +35,7 @@ namespace DiplomskaNaloga.Services
             _sensorGroupCollection = mongoDb.GetCollection<SensorGroup>(settings.CollectionGroupName);
         }
 
-		public async Task<SensorDetailsResponse> GetData(Guid? userId, Guid sensorGroupId, int pageNumber, int pageSize) {
+		public async Task<SensorDetailsResponse> GetData(Guid? userId, Guid sensorGroupId, DateTime? startDate = null, DateTime? endDate = null) {
 			var sensorGroup = await _sensorGroupCollection.Find(sgc => sgc.Id == sensorGroupId).FirstOrDefaultAsync();
 			if (sensorGroup == null) throw new UnauthorizedAccessException();
 
@@ -56,9 +59,26 @@ namespace DiplomskaNaloga.Services
 				Name = sensorGroup.Name,
 				Series = new(),
 			};
+
 			foreach (var b in c)
 			{
-				var data = new
+                DateTime dataDateTime = DateTime.ParseExact(b[sensorGroup.ColumnX].ToString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+				if (startDate.HasValue)
+				{
+					if(dataDateTime < startDate)
+					{
+						continue;
+					}
+				}
+				if (endDate.HasValue)
+				{
+					if(dataDateTime >= endDate)
+					{
+						continue;
+					}
+				}
+
+                var data = new
 				{
 					Name = b[sensorGroup.ColumnX].ToString(),
 					Value = b[sensorGroup.ColumnY].ToString(),
@@ -77,14 +97,14 @@ namespace DiplomskaNaloga.Services
         }
 
 
-		public async Task AddData(Guid sensorGroupId, Guid userId, SensorDetailsData data, string role = "")
+		public async Task AddData(Guid sensorGroupId, SensorDetailsData data)
 		{
 			var sensorGroup = await _sensorGroupCollection.Find(sgc => sgc.Id == sensorGroupId).FirstOrDefaultAsync();
-			if (sensorGroup.Hash != data.SensorHash) throw new Exception("Invalid hash");
+			//if (sensorGroup.Hash != data.SensorHash) throw new Exception("Invalid hash");
 
 			if (sensorGroup == null) throw new ArgumentException("Group not found");
 
-			if (sensorGroup.UserId != userId && role != "Admin") throw new UnauthorizedAccessException();
+			//if (sensorGroup.UserId != userId && role != "Admin") throw new UnauthorizedAccessException();
 
 			JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(data.Body.ToString());
 			List<JsonElement> listJsonElements = new();
@@ -143,7 +163,19 @@ namespace DiplomskaNaloga.Services
 			await _sensorDetailsCollection.InsertManyAsync(listSensorsDetails);
 		}
 
-		private bool IsJsonOfType(JsonElement jsonElement, dynamic customClass)
+        public async Task<bool> VerifyApiKey(Guid sensorGroupId, string apiKey)
+		{
+			var sensorGroup = await _sensorGroupCollection.Find(sgc => sgc.Id == sensorGroupId).FirstOrDefaultAsync();
+
+			if (sensorGroup == null) return false;
+
+			if (sensorGroup.Hash == apiKey) return true;
+
+            return false;
+		}
+
+
+        private bool IsJsonOfType(JsonElement jsonElement, dynamic customClass)
         {
 			var dictionary = (IDictionary<string, object>)customClass;
 
